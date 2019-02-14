@@ -97,16 +97,16 @@
 
 
   <meta name="description" content="前言Python 开发者一定对ImportError: No module named ***这个报错不陌生，特别是对于初学者来说，代码在本地 PyCharm 中运行得好好的，一放到服务器上用命令行启动就报这个错，这是很常见的情形。那么这个问题到底是什么引起的，又该怎么解决？这就涉及到 Python 的绝对导入和相对导入。">
-<meta name="keywords" content="python">
+<meta name="keywords" content="Python">
 <meta property="og:type" content="article">
-<meta property="og:title" content="【python】ImportError: No module named *** 问题？——理解绝对导入和相对导入">
+<meta property="og:title" content="ImportError: No module named *** 问题？——理解绝对导入和相对导入">
 <meta property="og:url" content="http://yoursite.com/2019/01/24/python-import/index.html">
 <meta property="og:site_name" content="Levy&#39;s Blog">
 <meta property="og:description" content="前言Python 开发者一定对ImportError: No module named ***这个报错不陌生，特别是对于初学者来说，代码在本地 PyCharm 中运行得好好的，一放到服务器上用命令行启动就报这个错，这是很常见的情形。那么这个问题到底是什么引起的，又该怎么解决？这就涉及到 Python 的绝对导入和相对导入。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-01-30T09:21:06.000Z">
+<meta property="og:updated_time" content="2019-02-14T03:21:13.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="【python】ImportError: No module named *** 问题？——理解绝对导入和相对导入">
+<meta name="twitter:title" content="ImportError: No module named *** 问题？——理解绝对导入和相对导入">
 <meta name="twitter:description" content="前言Python 开发者一定对ImportError: No module named ***这个报错不陌生，特别是对于初学者来说，代码在本地 PyCharm 中运行得好好的，一放到服务器上用命令行启动就报这个错，这是很常见的情形。那么这个问题到底是什么引起的，又该怎么解决？这就涉及到 Python 的绝对导入和相对导入。">
 
 
@@ -124,7 +124,7 @@
   };
 </script>
 
-  <title>【python】ImportError: No module named *** 问题？——理解绝对导入和相对导入 | Levy's Blog</title>
+  <title>ImportError: No module named *** 问题？——理解绝对导入和相对导入 | Levy's Blog</title>
   
 
 
@@ -227,6 +227,40 @@
         
         
           
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
           <li class="menu-item menu-item-archives">
 
     
@@ -306,7 +340,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">【python】ImportError: No module named *** 问题？——理解绝对导入和相对导入
+          <h1 class="post-title" itemprop="name headline">ImportError: No module named *** 问题？——理解绝对导入和相对导入
 
               
             
@@ -349,11 +383,29 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-01-30 17:21:06" itemprop="dateModified" datetime="2019-01-30T17:21:06+08:00">2019-01-30</time>
+                <time title="修改时间：2019-02-14 11:21:13" itemprop="dateModified" datetime="2019-02-14T11:21:13+08:00">2019-02-14</time>
               
             
           </span>
 
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/Python/" itemprop="url" rel="index"><span itemprop="name">Python</span></a></span>
+
+                
+                
+              
+            </span>
           
 
           
@@ -409,10 +461,9 @@
 <h1 id="应该用绝对导入还是相对导入？"><a href="#应该用绝对导入还是相对导入？" class="headerlink" title="应该用绝对导入还是相对导入？"></a>应该用绝对导入还是相对导入？</h1><p>按照 PEP8 的标准，建议使用绝对导入，例如<code>from A.B import C</code>（从顶级包开始，A 就是这里的顶级包，也就是最外层的含有 <code>__init__.py</code> 的目录）。但是相对导入也是被允许的，出于以下考虑：</p>
 <ol>
 <li>项目目录较深时，绝对导入会产生冗长的导入语句；</li>
-<li><p>对顶层包名修改时，就要在每个绝对导入语句中相应修改包名，这是件令人头疼的事。</p>
-<p>而绝对导入的优势在于能明确表达模块之间的结构关系，而不像相对导入要去理清一个个<code>.</code>的关系。</p>
-</li>
+<li>对顶层包名修改时，就要在每个绝对导入语句中相应修改包名，这是件令人头疼的事。</li>
 </ol>
+<p>而绝对导入的优势在于能明确表达模块之间的结构关系，而不像相对导入要去理清一个个<code>.</code>的关系。</p>
 <p>所以在目录结构不复杂的项目中使用绝对导入是可行的，而相对导入也是可以酌情考虑使用。</p>
 <h1 id="参考阅读"><a href="#参考阅读" class="headerlink" title="参考阅读"></a>参考阅读</h1><p><a href="https://www.python.org/dev/peps/pep-0328/" target="_blank" rel="noopener">PEP328</a></p>
 
@@ -433,12 +484,35 @@
     
 
     
+      <div>
+        
+
+
+
+  
+
+
+
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Levy</li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    
+    <a href="http://yoursite.com/2019/01/24/python-import/" title="ImportError: No module named *** 问题？——理解绝对导入和相对导入">http://yoursite.com/2019/01/24/python-import/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！</li>
+</ul>
+
+      </div>
+    
 
     <footer class="post-footer">
       
         <div class="post-tags">
           
-            <a href="/tags/python/" rel="tag"># python</a>
+            <a href="/tags/Python/" rel="tag"># Python</a>
           
         </div>
       
@@ -457,8 +531,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2019/01/28/python-descriptor/" rel="prev" title="【python】从 cached_property 理解描述符">
-                【python】从 cached_property 理解描述符 <i class="fa fa-chevron-right"></i>
+              <a href="/2019/01/28/python-descriptor/" rel="prev" title="从 cached_property 理解描述符">
+                从 cached_property 理解描述符 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -536,19 +610,32 @@
               
 
               
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                    <span class="site-state-item-count">1</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
 
               
                 
                 
                 <div class="site-state-item site-state-tags">
-                  
+                  <a href="/tags/index.html">
                     
                     
                       
                     
                     <span class="site-state-item-count">1</span>
                     <span class="site-state-item-name">标签</span>
-                  
+                  </a>
                 </div>
               
             </nav>
@@ -556,6 +643,21 @@
 
           
 
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="mailto:Levy_KE@outlook.com" title="E-Mail &rarr; mailto:Levy_KE@outlook.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                </span>
+              
+            </div>
           
 
           
