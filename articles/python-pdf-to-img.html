@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=6.7.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.7.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.7.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '6.7.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="环境安装PDF转IMG需要两个Python模块：PyPDF2(1.26.0)和Wand(0.4.4)，其中Wand安装前需要先安装软件ImageMagick，由于7.xx版本的接口改变，必须安装6.xx版本，以及GhostScript。PyPDF2和Wand可以直接使用pip安装，主要两个软件以及环境配置需要根据系统环境不同进行不同操作。由于自己开发用的Mac，生产环境覆盖了Linux和Windo">
+<meta name="keywords" content="Python">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Python 实现 PDF 转图片">
+<meta property="og:url" content="https://levy96.github.io/articles/python-pdf-to-img.html">
+<meta property="og:site_name" content="Levy&#39;s Blog">
+<meta property="og:description" content="环境安装PDF转IMG需要两个Python模块：PyPDF2(1.26.0)和Wand(0.4.4)，其中Wand安装前需要先安装软件ImageMagick，由于7.xx版本的接口改变，必须安装6.xx版本，以及GhostScript。PyPDF2和Wand可以直接使用pip安装，主要两个软件以及环境配置需要根据系统环境不同进行不同操作。由于自己开发用的Mac，生产环境覆盖了Linux和Windo">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-03-06T08:57:47.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Python 实现 PDF 转图片">
+<meta name="twitter:description" content="环境安装PDF转IMG需要两个Python模块：PyPDF2(1.26.0)和Wand(0.4.4)，其中Wand安装前需要先安装软件ImageMagick，由于7.xx版本的接口改变，必须安装6.xx版本，以及GhostScript。PyPDF2和Wand可以直接使用pip安装，主要两个软件以及环境配置需要根据系统环境不同进行不同操作。由于自己开发用的Mac，生产环境覆盖了Linux和Windo">
+
+
+
+
+
+
+  <link rel="canonical" href="https://levy96.github.io/articles/python-pdf-to-img.html">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Python 实现 PDF 转图片 | Levy's Blog</title>
+  
+
+
+
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?2111ada5d19e34b202db82102cba417b";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Levy's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://levy96.github.io/articles/python-pdf-to-img.html">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Levy">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Levy's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">Python 实现 PDF 转图片
+
+              
+            
+          </h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-10-25 14:44:41" itemprop="dateCreated datePublished" datetime="2018-10-25T14:44:41+08:00">2018-10-25</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-03-06 16:57:47" itemprop="dateModified" datetime="2019-03-06T16:57:47+08:00">2019-03-06</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/Python/" itemprop="url" rel="index"><span itemprop="name">Python</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/articles/python-pdf-to-img.html#comments" itemprop="discussionUrl">
+                  <span class="post-meta-item-text">评论数：</span> <span class="post-comments-count valine-comment-count" data-xid="/articles/python-pdf-to-img.html" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/articles/python-pdf-to-img.html" class="leancloud_visitors" data-flag-title="Python 实现 PDF 转图片">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数：</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="环境安装"><a href="#环境安装" class="headerlink" title="环境安装"></a>环境安装</h1><p>PDF转IMG需要两个Python模块：<code>PyPDF2(1.26.0)</code>和<code>Wand(0.4.4)</code>，其中<code>Wand</code>安装前需要先安装软件<code>ImageMagick</code>，由于7.xx版本的接口改变，必须安装6.xx版本，以及<code>GhostScript</code>。<code>PyPDF2</code>和<code>Wand</code>可以直接使用<code>pip</code>安装，主要两个软件以及环境配置需要根据系统环境不同进行不同操作。<br>由于自己开发用的Mac，生产环境覆盖了Linux和Windows，需要在这3种系统上进行环境安装，也是折腾了不少，以下简要列一下安装过程。</p>
+<a id="more"></a>
+<h2 id="Mac环境"><a href="#Mac环境" class="headerlink" title="Mac环境"></a>Mac环境</h2><p>安装<code>ImageMagick</code>：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">brew install imagemagick@6</span><br></pre></td></tr></table></figure></p>
+<p>安装完后可以用命令<code>convert --version</code>来测试</p>
+<p>软链接：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ln -s /usr/local/Cellar/imagemagick@6/6.9.9-49/lib/libMagickWand-6.Q16.dylib /usr/local/lib/libMagickWand.dylib</span><br></pre></td></tr></table></figure></p>
+<p>添加至系统环境：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">echo &apos;export PATH=&quot;/usr/local/opt/imagemagick@6/bin:$PATH&quot;&apos; &gt;&gt; ~/.bash_profile</span><br><span class="line">. ~/.bash_profile</span><br></pre></td></tr></table></figure></p>
+<p>安装<code>GhostScript</code>：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">brew install gs</span><br></pre></td></tr></table></figure></p>
+<h2 id="Linux环境"><a href="#Linux环境" class="headerlink" title="Linux环境"></a>Linux环境</h2><p>安装<code>ImageMagick</code>和<code>GhostScript</code>：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install ImageMagick</span><br></pre></td></tr></table></figure></p>
+<p>选择安装6.xx版本，由于依赖关系，会自动安装<code>GhostScript</code></p>
+<h2 id="Windows环境"><a href="#Windows环境" class="headerlink" title="Windows环境"></a>Windows环境</h2><ol>
+<li>下载<a href="https://www.imagemagick.org/download/binaries/ImageMagick-6.9.10-8-Q16-x64-dll.exe" target="_blank" rel="noopener">ImageMagick</a></li>
+<li><a href="http://docs.wand-py.org/en/latest/guide/install.html#install-imagemagick-windows" target="_blank" rel="noopener">相关安装及配置</a></li>
+<li>下载安装<a href="https://www.ghostscript.com/download/gsdnld.html" target="_blank" rel="noopener">GhostScript</a></li>
+</ol>
+<p>windows环境下配合Wand0.4.4使用的时候，加载Wand后，python读取的环境变量Path变成了unicode类型，导致启动webdirver时会报“TypeError: environment can only contain strings”，可以在引入Wand后，将path修改回str类型<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">import os</span><br><span class="line">import wand</span><br><span class="line">os.environ[&apos;path&apos;] = str(os.environ[&apos;path&apos;])</span><br></pre></td></tr></table></figure></p>
+<h1 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h1><p>考虑PDF会有多页的情况，每一页PDF会生成单独的一张图片，如有需求，可以用<code>PIL</code>将多张图片进行合并。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> io</span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> wand.image <span class="keyword">import</span> Image</span><br><span class="line"><span class="keyword">from</span> wand.color <span class="keyword">import</span> Color</span><br><span class="line"><span class="keyword">from</span> PyPDF2 <span class="keyword">import</span> PdfFileReader, PdfFileWriter</span><br><span class="line"><span class="keyword">from</span> PIL <span class="keyword">import</span> Image <span class="keyword">as</span> PIL_Image</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">pdf_to_img</span><span class="params">(pdf_path, resolution=<span class="number">200</span>, img_suffix=<span class="string">'jpeg'</span>)</span>:</span></span><br><span class="line">    <span class="string">"""</span></span><br><span class="line"><span class="string">    PDF转图片</span></span><br><span class="line"><span class="string">    :param pdf_path: PDF路径</span></span><br><span class="line"><span class="string">    :param resolution: 分辨率</span></span><br><span class="line"><span class="string">    :param img_suffix: 图片后缀名</span></span><br><span class="line"><span class="string">    :return: List 图片路径列表</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line">    pdf_file = PdfFileReader(pdf_path, strict=<span class="keyword">False</span>)</span><br><span class="line">    pages = pdf_file.getNumPages()</span><br><span class="line">    img_list = []</span><br><span class="line">    <span class="keyword">for</span> page <span class="keyword">in</span> range(pages):</span><br><span class="line">        page_obj = pdf_file.getPage(page)</span><br><span class="line">        dst_pdf = PdfFileWriter()</span><br><span class="line">        dst_pdf.addPage(page_obj)</span><br><span class="line">        pdf_bytes = io.BytesIO()</span><br><span class="line">        dst_pdf.write(pdf_bytes)</span><br><span class="line">        pdf_bytes.seek(<span class="number">0</span>)</span><br><span class="line">        img = Image(file=pdf_bytes, resolution=resolution)</span><br><span class="line">        img.format = img_suffix</span><br><span class="line">        img.compression_quality = <span class="number">90</span>  <span class="comment"># 图片质量压缩</span></span><br><span class="line">        img.background_color = Color(<span class="string">'white'</span>)</span><br><span class="line">        img_path = pdf_path.replace(<span class="string">'.pdf'</span>, <span class="string">'_&#123;&#125;.&#123;&#125;'</span>.format(page, img_suffix))\</span><br><span class="line">            <span class="keyword">if</span> page &gt; <span class="number">0</span> <span class="keyword">else</span> pdf_path.replace(<span class="string">'.pdf'</span>, <span class="string">'.&#123;&#125;'</span>.format(img_suffix))</span><br><span class="line">        img.save(filename=img_path)</span><br><span class="line">        img.destroy()</span><br><span class="line">        img_list.append(img_path)</span><br><span class="line">    <span class="keyword">if</span> len(img_list) &gt; <span class="number">1</span>:  <span class="comment"># 多图上下拼接</span></span><br><span class="line">        <span class="keyword">return</span> _merge_img(img_list)</span><br><span class="line">    <span class="keyword">elif</span> len(img_list) == <span class="number">0</span>:  <span class="comment"># 异常情况，无图片生成</span></span><br><span class="line">        <span class="keyword">return</span> <span class="string">''</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">return</span> img_list[<span class="number">0</span>]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">_merge_img</span><span class="params">(img_list)</span>:</span></span><br><span class="line">    <span class="string">"""拼接图片"""</span></span><br><span class="line">    <span class="keyword">if</span> img_list:</span><br><span class="line">        img_name = img_list[<span class="number">0</span>]</span><br><span class="line">        color_mod = <span class="string">'RGBA'</span> <span class="keyword">if</span> img_name.endswith(<span class="string">'.png'</span>) <span class="keyword">else</span> <span class="string">'RGB'</span>  <span class="comment"># jpeg格式不支持RGBA</span></span><br><span class="line">        first_img = PIL_Image.open(img_list[<span class="number">0</span>])</span><br><span class="line">        height_size = first_img.size[<span class="number">1</span>]</span><br><span class="line">        total_width = first_img.size[<span class="number">0</span>]</span><br><span class="line">        total_height = height_size * len(img_list)</span><br><span class="line">        left = <span class="number">0</span></span><br><span class="line">        right = height_size</span><br><span class="line">        target = PIL_Image.new(color_mod, (total_width, total_height))  <span class="comment"># 最终拼接的图像的大小</span></span><br><span class="line">        <span class="keyword">for</span> img <span class="keyword">in</span> img_list:</span><br><span class="line">            target.paste(PIL_Image.open(img), (<span class="number">0</span>, left, total_width, right))</span><br><span class="line">            left += height_size</span><br><span class="line">            right += height_size</span><br><span class="line">        target.save(img_name, quality=<span class="number">100</span>)</span><br><span class="line">        <span class="keyword">return</span> img_name</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="string">''</span></span><br></pre></td></tr></table></figure></p>
+<h1 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h1><p>通过读<code>PyPDF2</code>的源码可以发现：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">encrypt = self.trailer[<span class="string">'/Encrypt'</span>].getObject()</span><br><span class="line">    <span class="keyword">if</span> encrypt[<span class="string">'/Filter'</span>] != <span class="string">'/Standard'</span>:</span><br><span class="line">        <span class="keyword">raise</span> NotImplementedError(<span class="string">"only Standard PDF encryption handler is available"</span>)</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> (encrypt[<span class="string">'/V'</span>] <span class="keyword">in</span> (<span class="number">1</span>, <span class="number">2</span>)):</span><br><span class="line">        <span class="keyword">raise</span> NotImplementedError(<span class="string">"only algorithm code 1 and 2 are supported"</span>)</span><br></pre></td></tr></table></figure></p>
+<p>如果PDF是有密码的，<code>PyPDF2</code>是支持输入密码的，但是仅限于其中两种密码算法，所以如果有密码需求的话，还需要测试下<code>PyPDF2</code>支不支持自己的PDF所用密码算法。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+      <div>
+        
+
+
+
+  
+
+
+
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Levy</li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    
+    <a href="https://levy96.github.io/articles/python-pdf-to-img.html" title="Python 实现 PDF 转图片">https://levy96.github.io/articles/python-pdf-to-img.html</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！</li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Python/" rel="tag"># Python</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/articles/python-import.html" rel="prev" title="ImportError: No module named *** 问题？——理解绝对导入和相对导入">
+                ImportError: No module named *** 问题？——理解绝对导入和相对导入 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Levy</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">3</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                    <span class="site-state-item-count">1</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                    <span class="site-state-item-count">1</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="mailto:Levy_KE@outlook.com" title="E-Mail &rarr; mailto:Levy_KE@outlook.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#环境安装"><span class="nav-number">1.</span> <span class="nav-text">环境安装</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Mac环境"><span class="nav-number">1.1.</span> <span class="nav-text">Mac环境</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Linux环境"><span class="nav-number">1.2.</span> <span class="nav-text">Linux环境</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Windows环境"><span class="nav-number">1.3.</span> <span class="nav-text">Windows环境</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#代码实现"><span class="nav-number">2.</span> <span class="nav-text">代码实现</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#注意事项"><span class="nav-number">3.</span> <span class="nav-text">注意事项</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Levy</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v6.7.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=6.7.0"></script>
+
+  <script src="/js/src/motion.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/affix.js?v=6.7.0"></script>
+
+  <script src="/js/src/schemes/pisces.js?v=6.7.0"></script>
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=6.7.0"></script>
+<script src="/js/src/post-details.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=6.7.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+  <script src="//cdn1.lncld.net/static/js/3.11.1/av-min.js"></script>
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+  <script>
+    var GUEST = ['nick','mail','link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(function (item) {
+      return GUEST.indexOf(item) > -1;
+    });
+    new Valine({
+      el: '#comments' ,
+      verify: false,
+      notify: true,
+      appId: 'D5sE3cgMfaey0nj3u4co2PQ5-9Nh9j0Va',
+      appKey: 'AK9aKxFnOSXta2xgUwUOSBXu',
+      placeholder: '欢迎留言',
+      avatar: 'mm',
+      meta:guest,
+      pageSize: '10' || 10,
+      visitor: true
+    });
+  </script>
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
