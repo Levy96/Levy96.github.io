@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=6.7.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.7.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.7.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '6.7.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="前言Python 开发者一定对ImportError: No module named ***这个报错不陌生，特别是对于初学者来说，代码在本地 PyCharm 中运行得好好的，一放到服务器上用命令行启动就报这个错，这是很常见的情形。那么这个问题到底是什么引起的，又该怎么解决？这就涉及到 Python 的绝对导入和相对导入。">
+<meta name="keywords" content="Python">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ImportError: No module named *** 问题？——理解绝对导入和相对导入">
+<meta property="og:url" content="https://levy96.github.io/python-import/index.html">
+<meta property="og:site_name" content="Levy&#39;s Blog">
+<meta property="og:description" content="前言Python 开发者一定对ImportError: No module named ***这个报错不陌生，特别是对于初学者来说，代码在本地 PyCharm 中运行得好好的，一放到服务器上用命令行启动就报这个错，这是很常见的情形。那么这个问题到底是什么引起的，又该怎么解决？这就涉及到 Python 的绝对导入和相对导入。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-02-14T03:21:13.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ImportError: No module named *** 问题？——理解绝对导入和相对导入">
+<meta name="twitter:description" content="前言Python 开发者一定对ImportError: No module named ***这个报错不陌生，特别是对于初学者来说，代码在本地 PyCharm 中运行得好好的，一放到服务器上用命令行启动就报这个错，这是很常见的情形。那么这个问题到底是什么引起的，又该怎么解决？这就涉及到 Python 的绝对导入和相对导入。">
+
+
+
+
+
+
+  <link rel="canonical" href="https://levy96.github.io/python-import/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>ImportError: No module named *** 问题？——理解绝对导入和相对导入 | Levy's Blog</title>
+  
+
+
+
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?2111ada5d19e34b202db82102cba417b";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Levy's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://levy96.github.io/python-import/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Levy">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Levy's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">ImportError: No module named *** 问题？——理解绝对导入和相对导入
+
+              
+            
+          </h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-01-24 19:35:33" itemprop="dateCreated datePublished" datetime="2019-01-24T19:35:33+08:00">2019-01-24</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-02-14 11:21:13" itemprop="dateModified" datetime="2019-02-14T11:21:13+08:00">2019-02-14</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/Python/" itemprop="url" rel="index"><span itemprop="name">Python</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/python-import/#comments" itemprop="discussionUrl">
+                  <span class="post-meta-item-text">评论数：</span> <span class="post-comments-count valine-comment-count" data-xid="/python-import/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/python-import/" class="leancloud_visitors" data-flag-title="ImportError: No module named *** 问题？——理解绝对导入和相对导入">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数：</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>Python 开发者一定对<code>ImportError: No module named ***</code>这个报错不陌生，特别是对于初学者来说，代码在本地 PyCharm 中运行得好好的，一放到服务器上用命令行启动就报这个错，这是很常见的情形。<br>那么这个问题到底是什么引起的，又该怎么解决？这就涉及到 Python 的绝对导入和相对导入。</p>
+<a id="more"></a>
+<h1 id="解决-ImportError-No-module-named"><a href="#解决-ImportError-No-module-named" class="headerlink" title="解决 ImportError: No module named ***"></a>解决 ImportError: No module named ***</h1><p>什么是绝对导入？什么是相对导入？先举几个简单的例子：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> B <span class="keyword">import</span> C  <span class="comment"># 绝对导入</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> . <span class="keyword">import</span> D  <span class="comment"># 相对导入</span></span><br><span class="line"><span class="keyword">from</span> ..E <span class="keyword">import</span> F  <span class="comment"># 相对导入</span></span><br></pre></td></tr></table></figure></p>
+<p>Python 编译器对于绝对导入的处理是从当前目录、sys.path、环境变量 PYTHONPATH 中搜索需要导入的包。回到<code>ImportError: No module named ***</code>的问题，如果你用绝对导入引起了这个问题，那就要思考从当前目录、sys.path、环境变量 PYTHONPATH 中能不能找到需要导入的包？</p>
+<p>知道了起因，就很好解决问题了，如下所示：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> sys</span><br><span class="line">sys.path.append(<span class="string">'你的项目目录'</span>)</span><br><span class="line"><span class="keyword">from</span> B <span class="keyword">import</span> C</span><br></pre></td></tr></table></figure></p>
+<p>需要在代码里直接写路径，感觉有点丑陋？稍作修改：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line">sys.path.append(os.path.dirname(os.path.realpath(__file__)))</span><br><span class="line"><span class="comment"># os.path.realpath(__file__)表示当前文件的路径，加上os.path.dirname就是当前文件的上一级目录路径</span></span><br><span class="line"><span class="comment"># 套多少个dirname()取决于当前文件在你的项目目录中的深度有多少。</span></span><br><span class="line"><span class="comment"># 注意不要把realpath写成relpath!</span></span><br><span class="line"><span class="keyword">from</span> B <span class="keyword">import</span> A</span><br></pre></td></tr></table></figure></p>
+<p>但是，为什么在 PyCharm 中运行代码就没有这样的问题呢？<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    print(sys.path)</span><br><span class="line">    print(os.environ[<span class="string">'PYTHONPATH'</span>])</span><br></pre></td></tr></table></figure></p>
+<p>分别用 PyCharm 和命令行运行这段代码就能发现：</p>
+<ol>
+<li>不管是用 PyCharm 运行还是命令行运行，sys.path 中都包含当前文件的所在路径以及一系列 Python 相关的路径（包括 site-packages ），这就解释了为什么可以用<code>import A</code>的方式导入当前目录的模块、标准库的模块、已安装的第三方模块；</li>
+<li>用PyCharm 运行，sys.path 中还多了你的项目根目录，也就是上述用<code>sys.path.append</code>添加的路径，这就解释了为什么 PyCharm 运行代码没有<code>ImportError: No module named ***</code>的错误，这是 PyCharm 默默做了处理；</li>
+<li>命令行运行<code>print(os.environ[&#39;PYTHONPATH&#39;])</code>会报错，而 PyCharm 不会，并且 PyCharm 会把项目目录添加到环境变量中去，这和上边一条是同样道理。</li>
+</ol>
+<p>现在，<code>ImportError: No module named ***</code>的问题解决了，但是关于绝对导入和相对导入还不止这些。</p>
+<h1 id="如何使用相对导入"><a href="#如何使用相对导入" class="headerlink" title="如何使用相对导入"></a>如何使用相对导入</h1><p>使用 Guido 的例子：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">package/</span><br><span class="line">    __init__.py</span><br><span class="line">    subpackage1/</span><br><span class="line">        __init__.py</span><br><span class="line">        moduleX.py</span><br><span class="line">        moduleY.py</span><br><span class="line">    subpackage2/</span><br><span class="line">        __init__.py</span><br><span class="line">        moduleZ.py</span><br><span class="line">    moduleA.py</span><br></pre></td></tr></table></figure></p>
+<p>如果要在<code>moduleX.py</code>中相对导入其他模块，要这么写：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> .moduleY <span class="keyword">import</span> spam</span><br><span class="line"><span class="keyword">from</span> .moduleY <span class="keyword">import</span> spam <span class="keyword">as</span> ham</span><br><span class="line"><span class="keyword">from</span> . <span class="keyword">import</span> moduleY</span><br><span class="line"><span class="keyword">from</span> ..subpackage1 <span class="keyword">import</span> moduleY</span><br><span class="line"><span class="keyword">from</span> ..subpackage2.moduleZ <span class="keyword">import</span> eggs</span><br><span class="line"><span class="keyword">from</span> ..moduleA <span class="keyword">import</span> foo</span><br></pre></td></tr></table></figure></p>
+<p>一个<code>.</code>表示当前目录，两个<code>.</code>表示上级目录，以此类推。</p>
+<p>需要注意的是使用相对导入后，当前模块就不能直接运行了，会抛出<code>ValueError: Attempted relative import in non-package</code>的错误。这是因为对于编译器来说，它无法理解导入语句中的相对关系，这时候就需要为它说明相对关系了，也就是用<code>python -m A.B.C</code>的方式代替<code>python A/B/C.py</code>来运行模块。</p>
+<h1 id="from-future-import-absolute-import"><a href="#from-future-import-absolute-import" class="headerlink" title="from future import absolute_import"></a>from <strong>future</strong> import absolute_import</h1><p>在网上很多文章提到 “ Python2 默认为相对导入，而 Python3 默认为绝对导入 ”。</p>
+<p>我个人觉得这句话是挺没头没尾的，乍一看就会有疑问：相对导入还是绝对导入难道不是由导入语法决定的么？难道在 Python3 中就不能用相对导入？</p>
+<p>我的理解是 “ 采用优先使用绝对导入的逻辑，并且这在 Python3 中是强制的”，这要提到<code>from __future__ import absolute_import</code>，查看<code>absolute_import</code>：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">absolute_import = _Feature((<span class="number">2</span>, <span class="number">5</span>, <span class="number">0</span>, <span class="string">"alpha"</span>, <span class="number">1</span>),</span><br><span class="line">                           (<span class="number">3</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="string">"alpha"</span>, <span class="number">0</span>),</span><br><span class="line">                           CO_FUTURE_ABSOLUTE_IMPORT)</span><br></pre></td></tr></table></figure></p>
+<p>可见<code>absolute_import</code>这个模块在 2.5 版本后可以选择性引入，在 3.0 之后是默认使用的，那么引入这个模块有什么用呢？</p>
+<p>以上边的项目目录结构为例，在<code>moduleX.py</code>中导入<code>moduleY.py</code>可以有3种方式：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> moduleY  <span class="comment"># 隐式相对导入</span></span><br><span class="line"><span class="keyword">from</span> . <span class="keyword">import</span> moduleY  <span class="comment"># 显式相对导入</span></span><br><span class="line"><span class="keyword">from</span> package.subpackage1 <span class="keyword">import</span> moduleY  <span class="comment"># 绝对导入</span></span><br></pre></td></tr></table></figure></p>
+<p>在使用<code>from __future__ import absolute_import</code>后，就不支持<code>import moduleY</code>的写法了，也意味着在 Python3 中无法用这种写法，这是为了避免本地自定义的模块与标准库的模块命名出现冲突，如果当前目录和标准库同时存在一个名为 A 的模块，那么<code>import A</code>将从标准库中导入模块 A，忽略当前目录的 A 模块。这样，<code>import ***</code>就只能用于标准库或已安装的第三方模块的导入。</p>
+<h1 id="应该用绝对导入还是相对导入？"><a href="#应该用绝对导入还是相对导入？" class="headerlink" title="应该用绝对导入还是相对导入？"></a>应该用绝对导入还是相对导入？</h1><p>按照 PEP8 的标准，建议使用绝对导入，例如<code>from A.B import C</code>（从顶级包开始，A 就是这里的顶级包，也就是最外层的含有 <code>__init__.py</code> 的目录）。但是相对导入也是被允许的，出于以下考虑：</p>
+<ol>
+<li>项目目录较深时，绝对导入会产生冗长的导入语句；</li>
+<li>对顶层包名修改时，就要在每个绝对导入语句中相应修改包名，这是件令人头疼的事。</li>
+</ol>
+<p>而绝对导入的优势在于能明确表达模块之间的结构关系，而不像相对导入要去理清一个个<code>.</code>的关系。</p>
+<p>所以在目录结构不复杂的项目中使用绝对导入是可行的，而相对导入也是可以酌情考虑使用。</p>
+<h1 id="参考阅读"><a href="#参考阅读" class="headerlink" title="参考阅读"></a>参考阅读</h1><p><a href="https://www.python.org/dev/peps/pep-0328/" target="_blank" rel="noopener">PEP328</a></p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+      <div>
+        
+
+
+
+  
+
+
+
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Levy</li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    
+    <a href="https://levy96.github.io/python-import/" title="ImportError: No module named *** 问题？——理解绝对导入和相对导入">https://levy96.github.io/python-import/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！</li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Python/" rel="tag"># Python</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/python-pdf-to-img/" rel="next" title="Python 实现 PDF 转图片">
+                <i class="fa fa-chevron-left"></i> Python 实现 PDF 转图片
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/python-descriptor/" rel="prev" title="从 cached_property 理解描述符">
+                从 cached_property 理解描述符 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Levy</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">3</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                    <span class="site-state-item-count">1</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                    <span class="site-state-item-count">1</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="mailto:Levy_KE@outlook.com" title="E-Mail &rarr; mailto:Levy_KE@outlook.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#解决-ImportError-No-module-named"><span class="nav-number">2.</span> <span class="nav-text">解决 ImportError: No module named ***</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#如何使用相对导入"><span class="nav-number">3.</span> <span class="nav-text">如何使用相对导入</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#from-future-import-absolute-import"><span class="nav-number">4.</span> <span class="nav-text">from future import absolute_import</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#应该用绝对导入还是相对导入？"><span class="nav-number">5.</span> <span class="nav-text">应该用绝对导入还是相对导入？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考阅读"><span class="nav-number">6.</span> <span class="nav-text">参考阅读</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Levy</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v6.7.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=6.7.0"></script>
+
+  <script src="/js/src/motion.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/affix.js?v=6.7.0"></script>
+
+  <script src="/js/src/schemes/pisces.js?v=6.7.0"></script>
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=6.7.0"></script>
+<script src="/js/src/post-details.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=6.7.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+  <script src="//cdn1.lncld.net/static/js/3.11.1/av-min.js"></script>
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+  <script>
+    var GUEST = ['nick','mail','link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(function (item) {
+      return GUEST.indexOf(item) > -1;
+    });
+    new Valine({
+      el: '#comments' ,
+      verify: false,
+      notify: true,
+      appId: 'D5sE3cgMfaey0nj3u4co2PQ5-9Nh9j0Va',
+      appKey: 'AK9aKxFnOSXta2xgUwUOSBXu',
+      placeholder: '欢迎留言',
+      avatar: 'mm',
+      meta:guest,
+      pageSize: '10' || 10,
+      visitor: true
+    });
+  </script>
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
