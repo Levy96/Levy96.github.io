@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>https://levy96.github.io/articles/python-import.html</loc>
+    <lastmod>2019-04-03</lastmod>
+  </url>  <url>
     <loc>https://levy96.github.io/articles/python-pdf-to-img.html</loc>
     <lastmod>2019-03-06</lastmod>
-  </url>  <url>
-    <loc>https://levy96.github.io/articles/python-import.html</loc>
-    <lastmod>2019-02-14</lastmod>
   </url>  <url>
     <loc>https://levy96.github.io/articles/python-descriptor.html</loc>
     <lastmod>2019-02-13</lastmod>
